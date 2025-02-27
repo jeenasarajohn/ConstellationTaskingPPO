@@ -5,6 +5,11 @@ Development - |version|
 -----------------------
 .. *Release Date: MMM. DD, YYYY*
 
+Version 1.1.0
+-------------
+*Release Date: Feb. 26, 2025*
+
+
 * Add ability in :class:`~bsk_rl.obs.SatProperties` to define new observations with
   a custom function.
 * Add ``deepcopy`` to mutable inputs to the environment so that an environment argument
