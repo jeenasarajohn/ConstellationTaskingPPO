@@ -5,6 +5,11 @@ Development - |version|
 -----------------------
 .. *Release Date: MMM. DD, YYYY*
 
+
+Version 1.2.0
+-------------
+*Release Date: Jul. 23, 2025*
+
 * Add an example script where reward is based on the probability of successfully observing targets covered 
   by clouds in the `Cloud Environment with Re-imaging <examples/cloud_environment_with_reimaging.ipynb>`_ example.
 * Add a conjunction checking dynamics model in :class:`ConjunctionDynModel`.
@@ -58,7 +63,6 @@ Development - |version|
 Version 1.1.0
 -------------
 *Release Date: Feb. 26, 2025*
-
 
 * Add ability in :class:`~bsk_rl.obs.SatProperties` to define new observations with
   a custom function.
