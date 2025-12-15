@@ -1,7 +1,6 @@
 from importlib.metadata import version
-
 import gymnasium
-
+import gymnasium as gym
 from PPOTrainer import PPOGymTrainer
 from bsk_rl import sats, obs, act, ConstellationTasking, scene, data
 from bsk_rl.obs.relative_observations import rso_imaged_regions
@@ -195,7 +194,10 @@ def main(run_name):
         ),
     )
 
-    env = ConstellationTasking(
+    class Wrapper(gym.Wrapper):
+        pass
+
+    base_env = ConstellationTasking(
         satellites=[
             RSOSat("RSO", sat_args=rso_sat_args),
             InspectorSat("Inspector", sat_args=inspector_sat_args, obs_type=dict),
@@ -207,6 +209,7 @@ def main(run_name):
         sim_rate=5.0,
         log_level="INFO",
     )
+    env = Wrapper(base_env)
 
     print(isinstance(env, gymnasium.Env))
 
