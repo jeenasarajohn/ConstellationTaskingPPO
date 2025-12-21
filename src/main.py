@@ -13,6 +13,7 @@ from functools import partial
 from bsk_rl.utils.orbital import random_orbit, random_unit_vector, relative_to_chief
 from Basilisk.utilities.orbitalMotion import elem2rv
 from Basilisk.utilities.RigidBodyKinematics import C2MRP
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 
 class RSOSat(sats.Satellite):
@@ -194,24 +195,47 @@ def main(run_name):
         ),
     )
 
-    class Wrapper(gym.Wrapper):
-        pass
+    class RSOInspectionEnv(gymnasium.Env):
+        def __init__(self, rso_sat_args, inspector_sat_args, scenario, rewarders):
+            super().__init__()
+            self.base_env = ConstellationTasking(
+            satellites=[
+                RSOSat("RSO", sat_args=rso_sat_args),
+                InspectorSat("Inspector", sat_args=inspector_sat_args, obs_type=dict),
+            ],
+            sat_arg_randomizer=sat_arg_randomizer,
+            scenario=scenario,
+            rewarder=rewarders,
+            time_limit=60000,
+            sim_rate=5.0,
+            log_level="INFO",
+            )
 
-    base_env = ConstellationTasking(
-        satellites=[
-            RSOSat("RSO", sat_args=rso_sat_args),
-            InspectorSat("Inspector", sat_args=inspector_sat_args, obs_type=dict),
-        ],
-        sat_arg_randomizer=sat_arg_randomizer,
-        scenario=scenario,
-        rewarder=rewarders,
-        time_limit=60000,
-        sim_rate=5.0,
-        log_level="INFO",
-    )
-    env = Wrapper(base_env)
+            self.base_env.reset()
 
-    print(isinstance(env, gymnasium.Env))
+            print(type(self.base_env.observation_spaces["Inspector"]))
+
+            obs = gym.spaces.Dict(self.base_env.observation_spaces["Inspector"])
+
+            self.observation_space = obs
+            self.action_space = self.base_env.action_space("Inspector")
+
+        def reset(self, **kwargs):
+            obs, info = self.base_env.reset(**kwargs)
+            return obs["Inspector"], info.get("Inspector", {})
+
+        def step(self, action):
+            obs, reward, terminated, truncated, info = self.base_env.step({"Inspector": action})
+            terminated = terminated["Inspector"]
+            truncated = truncated["Inspector"]
+            obs = obs["Inspector"]
+            reward = reward["Inspector"]
+            info = info["Inspector"]
+            return obs, reward, terminated, truncated, info
+
+
+    env = RSOInspectionEnv(rso_sat_args, inspector_sat_args, scenario, rewarders)
+
 
     trainer = PPOGymTrainer(
         env,
@@ -228,8 +252,6 @@ def main(run_name):
     env.reset()
     for i in range(4):
         env.step(dict(RSO=0, Inspector=env.action_space("Inspector").sample()))
-
-
 
 if __name__ == "__main__":
     bskLogging.setDefaultLogLevel(bskLogging.BSK_WARNING)

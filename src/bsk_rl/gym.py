@@ -704,7 +704,7 @@ class ConstellationTasking(
     def observation_spaces(self) -> dict[AgentID, spaces.Box]:
         """Return the observation space for each agent."""
         super().observation_space
-        self._validate_meta_agent_groupings()
+        # self._validate_meta_agent_groupings()
 
         obs_spaces = {}
         for agent, satellites in self.meta_agent_groupings.items():
