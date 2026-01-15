@@ -184,7 +184,7 @@ class RSOInspectionEnv(gymnasium.Env):
             rewarder=rewarders,
             time_limit=60000,
             sim_rate=5.0,
-            log_level="INFO",
+            log_level="ERROR",
         )
 
         self.base_env.reset()

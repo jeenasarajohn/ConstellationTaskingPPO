@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 import ray
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
+from tqdm import tqdm
 
 try:
     import gymnasium as gym
@@ -179,7 +180,7 @@ class PPOGymTrainer:
             self._register_env()
             self._algo = self._build_algo()
 
-            for i in range(1, stop_iters + 1):
+            for i in tqdm(range(1, stop_iters + 1)):
                 last = self._algo.train()
 
                 r = last.get("episode_reward_mean", float("nan"))
