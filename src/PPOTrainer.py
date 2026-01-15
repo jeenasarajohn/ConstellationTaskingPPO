@@ -104,7 +104,6 @@ class PPOGymTrainer:
             .framework("torch")
             .environment(env=self._env_name, env_config={})
             .env_runners(num_env_runners=0)
-            .resources(num_gpus=self._num_gpus)
             .training(
                 lr=self._lr,
                 gamma=self._gamma,
@@ -114,6 +113,11 @@ class PPOGymTrainer:
             )
             .debugging(seed=self._seed)
         )
+        config = config.resources(num_gpus=self._num_gpus)
+        try:
+            config = config.learners(num_gpus_per_learner=self._num_gpus)
+        except Exception:
+            pass
         return config.build_algo()
 
     def _log_to_tensorboard(self, metrics: Dict[str, Any], step: int) -> None:
